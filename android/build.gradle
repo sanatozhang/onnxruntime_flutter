@@ -31,7 +31,7 @@ android {
 
     // Bumping the plugin compileSdkVersion requires all clients of this plugin
     // to bump the version in their app.
-    compileSdkVersion 33
+    compileSdkVersion 35
 
     // Use the NDK version
     // declared in /android/app/build.gradle file of the Flutter project.
@@ -46,5 +46,44 @@ android {
 
     defaultConfig {
         minSdkVersion 21
+        ndk {
+            abiFilters 'arm64-v8a', 'armeabi-v7a'
+        }
+        externalNativeBuild {
+            cmake {
+                arguments "-DANDROID_STL=c++_shared"
+            }
+        }
     }
+
+    // 配置外部原生构建以支持 16KB 页大小
+    externalNativeBuild {
+        cmake {
+            path "src/main/cpp/CMakeLists.txt"
+            version "3.22.1"
+        }
+    }
+
+    // 使用预编译的库，但会在构建后重新对齐
+    sourceSets {
+        main {
+            jniLibs {
+                srcDirs = ["src/main/jniLibs"]
+            }
+        }
+    }
+}
+
+tasks.register("buildOnnxruntime16kArm64", Exec) {
+    workingDir projectDir
+    commandLine "bash", "build_onnxruntime_16kb.sh", "arm64-v8a"
+}
+
+tasks.register("buildOnnxruntime16kArmeabi", Exec) {
+    workingDir projectDir
+    commandLine "bash", "build_onnxruntime_16kb.sh", "armeabi-v7a"
+}
+
+tasks.register("buildOnnxruntime16kAll") {
+    dependsOn("buildOnnxruntime16kArm64", "buildOnnxruntime16kArmeabi")
 }
