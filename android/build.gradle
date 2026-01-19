@@ -49,19 +49,6 @@ android {
         ndk {
             abiFilters 'arm64-v8a', 'armeabi-v7a'
         }
-        externalNativeBuild {
-            cmake {
-                arguments "-DANDROID_STL=c++_shared"
-            }
-        }
-    }
-
-    // 配置外部原生构建以支持 16KB 页大小
-    externalNativeBuild {
-        cmake {
-            path "src/main/cpp/CMakeLists.txt"
-            version "3.22.1"
-        }
     }
 
     // 使用预编译的库，但会在构建后重新对齐
